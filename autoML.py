@@ -37,33 +37,28 @@ def evaluate(model, test_features, test_labels):
 
 #Importing the datasets-------------------------------------------------------
 print ("Importing datasets")
-df = pd.read_csv('data.csv')  
+dfML = pd.read_csv('data.csv')  
 
 #Inputs------------------------------------------------------------------------
-randomforestparametertuning = "yes"
-XGboostparametertuning = "yes"
-SVMparametertuning ="yes"
-MLPparametertuning ="yes"
+randomforestparametertuning = "no" #yes or no
+XGboostparametertuning      = "no" #yes or no
+SVMparametertuning          = "no" #yes or no
+MLPparametertuning          = "no" #yes or no
 
 #Preparing ML Datasets--------------------------------------------------------
 #if preprocessing from original data is necessary, do it here.
 print ("Preparing ML datasets")
-dfML = df[["Kick size",
-           "Maximum GOR",
-           "Bottoms-up time",
-           "DR"
-           ]].copy()
 
 #Define X and Y for each regression--------------------------------------------
 X = dfML.iloc[:, :-1].values #X is all the value except the last column
-y = dfML.iloc[:,3].values #Y is (in this case) the 4th column. The valu needs to be changed according to your dataframe.
+y = dfML.iloc[:,5].values #Y is (in this case) the 4th column. The valu needs to be changed according to your dataframe.
 X2 = preprocessing.scale(X) #PReprocessing provides better results especially for MLP and SVR algorihms.
 
 #Splitting all datasets into train and test------------------------------------
 print ("Train/test split")
 from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test= train_test_split(X,y,test_size = 0.20)
-X_train2, X_test2, y_train2, y_test2= train_test_split(X2,y,test_size = 0.20)
+X_train, X_test, y_train, y_test= train_test_split(X,y,test_size = 0.2,random_state = 0)
+X_train2, X_test2, y_train2, y_test2= train_test_split(X2,y,test_size = 0.2,random_state = 0)
 
 #RandomForest Parameter Tuning-------------------------------------------------
 if randomforestparametertuning == "yes":
@@ -76,8 +71,9 @@ if randomforestparametertuning == "yes":
         'max_features': ['auto', 'sqrt'],
         'min_samples_leaf': [1,2,3,],
         'min_samples_split': [3, 4, 5,6,7],
-        'n_estimators': [100, 200, 300, 600]
-    }
+        'n_estimators': [50,100,150,200,250,300,350,400,500]
+        }
+    
     # Create a based model
     rf = RandomForestRegressor()
     # Instantiate the grid search model
@@ -86,6 +82,8 @@ if randomforestparametertuning == "yes":
     
     # Fit the grid search to the data
     grid_search_RF.fit(X_train2, y_train2)
+    print("Grid Search Best Parameters for Random Forest Regression")
+    print (grid_search_RF.best_params_)
     
 #XGBoost Parameter Tuning------------------------------------------------------
 if XGboostparametertuning == "yes":
@@ -95,9 +93,9 @@ if XGboostparametertuning == "yes":
                     'gamma': [2,3,4,5],
                     'learning_rate': [0.1,0.2,0.3],
                     'max_depth': [8,9,10,11,12],
-                    'n_estimators': [10,15,20,25],
+                    'n_estimators': [150,200,250,300,350],
                     'subsample': [0.8,0.9,1],
-                    'reg_alpha': [15,16,17,18,19,20],
+                    'reg_alpha': [15,18,20],
                     'min_child_weight':[3,4,5]}
 
     # Create a based model
@@ -108,13 +106,15 @@ if XGboostparametertuning == "yes":
     
     # Fit the grid search to the data
     grid_search_XGB.fit(X_train2, y_train2)
+    print("Grid Search Best Parameters for XGBoost")
+    print (grid_search_XGB.best_params_)    
 
 #SVM Parameter Tuning----------------------------------------------------------
 if SVMparametertuning == "yes":
     print("SVM parameter tuning")
 
-    C_range = 10. ** np.arange(-3, 8)
-    gamma_range = 10. ** np.arange(-5, 4)
+    C_range = 10. ** np.arange(-3, 3)
+    gamma_range = 10. ** np.arange(-5, 3)
     param_grid = dict(gamma=gamma_range, C=C_range)
     svr_rbf = SVR()
     # Instantiate the grid search model
@@ -122,14 +122,16 @@ if SVMparametertuning == "yes":
                               cv = 3, n_jobs = -1, verbose = 2)
     # Fit the grid search to the data
     grid_search_svm.fit(X_train2, y_train2)
+    print("Grid Search Best Parameters for SVM")
+    print (grid_search_svm.best_params_)
 
 #MLP Parameter Tuning----------------------------------------------------------
     
 if MLPparametertuning == "yes":
-    print("SVM parameter tuning")
+    print("MLP parameter tuning")
 
     param_grid = {
-        'hidden_layer_sizes': [10,20,30,40,50,60,70,80,90,100],
+        'hidden_layer_sizes': [50,100,150,200,250,300,350],
         'activation': ['identity','logistic','tanh','relu'],
         'solver': ['lbfgs', 'sgd','adam'],
         'learning_rate': ['constant','invscaling','adaptive']}
@@ -140,16 +142,9 @@ if MLPparametertuning == "yes":
     
     # Fit the grid search to the data
     grid_search_MLP.fit(X_train2, y_train2)
+    print("Grid Search Best Parameters for MLP")
+    print (grid_search_MLP.best_params_)
 
-#Summary of the tuning parameters----------------------------------------------
-print("Grid Search Best Parameters for Random Forest Regression")
-print (grid_search_RF.best_params_)
-print("Grid Search Best Parameters for XGBoost")
-print (grid_search_XGB.best_params_)    
-print("Grid Search Best Parameters for SVM")
-print (grid_search_svm.best_params_)
-print("Grid Search Best Parameters for MLP")
-print (grid_search_MLP.best_params_)
 
 #Fitting multi linear regression to data---------------------------------------
 print ("Fit multilinear regression")
@@ -163,12 +158,18 @@ ridgeReg.fit(X_train,y_train)
 
 #Fitting random forest regression to data--------------------------------------
 print ("Fit random forest regression")
-randreg = RandomForestRegressor(**grid_search_RF.best_params_)
+try:
+    randreg = RandomForestRegressor(**grid_search_RF.best_params_)
+except:
+    randreg = RandomForestRegressor()
 randreg.fit(X_train2,y_train2)
 
 #Fitting XGboost regression to data--------------------------------------------
 print ("Fit XGBoost regression")
-XGBreg = XGBRegressor(**grid_search_XGB.best_params_)
+try:
+    XGBreg = XGBRegressor(**grid_search_XGB.best_params_)
+except: 
+    XGBreg = XGBRegressor()
 XGBreg.fit(X_train2, y_train2)
 
 #Fitting LASSO regression to data----------------------------------------------
@@ -177,13 +178,19 @@ lassoreg = Lasso(alpha=0.01, max_iter=10e5)
 lassoreg.fit(X_train, y_train)
 
 #Support Vector Machines-------------------------------------------------------
-svr_rbf = SVR(**grid_search_svm.best_params_)
 print ("Fit SVR RBF regression")
-svr_rbf.fit(X_train2, y_train2)
+try:
+    svr_rbf = SVR(**grid_search_svm.best_params_)
+except:
+    svr_rbf = SVR()
+    svr_rbf.fit(X_train2, y_train2)
 
 #MLP Regressor-----------------------------------------------------------------
-MLP = MLPRegressor(**grid_search_MLP.best_params_)
 print ("Fit Multi-layer Perceptron regressor")
+try:
+    MLP = MLPRegressor(**grid_search_MLP.best_params_)
+except:
+    MLP = MLPRegressor()    
 MLP.fit(X_train2, y_train2)
 
 #Polynomial regression 2 degrees
@@ -218,8 +225,8 @@ def r_score(y_true, y_pred):
     ss_res = np.sum(residuals**2)
     ss_tot = np.sum((y_true-np.mean(y_true))**2)
     r_squared = 1 - (ss_res / ss_tot)    
-    #r_scores = (r_squared ** 0.5)
-    return r_squared
+    r_scores = (r_squared ** 0.5)
+    return r_scores
 
 y_predicted_RF = randreg.predict(X_test2)
 y_predicted_LREG = linreg.predict(X_test)
@@ -282,14 +289,12 @@ errors = [{'Model Name': 'Random Forest Regression', 'R2': r_RF, 'MAE': MAE_RF, 
           {'Model Name': 'XGBoost Regression', 'R2': r_XGB, 'MAE': MAE_XGB, 'MSE': MSE_XGB, 'MAPE (%)': np.mean(MAPE_XGB), 'Median Error (%)': statistics.median(MAPE_XGB)},
           {'Model Name': 'Lasso Regression', 'R2': r_LASSO, 'MAE': MAE_LASSO, 'MSE': MSE_LASSO, 'MAPE (%)': np.mean(MAPE_LASSO), 'Median Error (%)': statistics.median(MAPE_LASSO)},
           {'Model Name': 'Support Vector Machine', 'R2': r_svr_rbf, 'MAE': MAE_svr_rbf, 'MSE': MSE_svr_rbf, 'MAPE (%)': np.mean(MAPE_svr_rbf), 'Median Error (%)': statistics.median(MAPE_svr_rbf)},
-          {'Model Name': 'Multi-layer Perceptron', 'R2': r_MLP, 'MAE': MAE_MLP, 'MSE': MSE_MLP, 'MAPE (%)': np.mean(MAPE_MLP), 'Median Error (%)': statistics.median(MAPE_MLP)},
-          {'Model Name': '2nd Polynomial Regression', 'R2': r_PREG2 , 'MAE': MAE_PREG2 , 'MSE': MSE_PREG2 , 'MAPE (%)': MAPE_PREG2},
-          {'Model Name': '3rd Polynomial Regression', 'R2': r_PREG3 , 'MAE': MAE_PREG3 , 'MSE': MSE_PREG3 , 'MAPE (%)': MAPE_PREG3}]
+          {'Model Name': 'Multi-layer Perceptron', 'R2': r_MLP, 'MAE': MAE_MLP, 'MSE': MSE_MLP, 'MAPE (%)': np.mean(MAPE_MLP), 'Median Error (%)': statistics.median(MAPE_MLP)}]
 
 df_estimationerrors = pd.DataFrame(errors)
 df_estimationerrors= df_estimationerrors.sort_values(by=['Median Error (%)'])
 print(df_estimationerrors)
-df_estimationerrors.to_csv("errors.csv")
+#df_estimationerrors.to_csv("errors-test5.csv")
 
 #Boxplot 
 import matplotlib.pyplot as plt 
@@ -299,7 +304,7 @@ fig = plt.figure(1, figsize=(9, 6))
 
 # Create an axes instance
 ax = fig.add_subplot(111)
-data_to_plot = [MAPE_RF,MAPE_MLP,MAPE_svr_rbf,MAPE_XGB,MAPE_RIDGE,MAPE_LASSO,MAPE_LREG,MAPE_PREG2,MAPE_PREG3]
+data_to_plot = [MAPE_RF,MAPE_XGB, MAPE_svr_rbf, MAPE_MLP,MAPE_LASSO,MAPE_RIDGE,MAPE_LREG]
 
 # Create the boxplot
 bp = ax.boxplot(data_to_plot)
@@ -331,15 +336,15 @@ for flier in bp['fliers']:
     flier.set(marker='o', color='#e7298a', alpha=0.5)
               
 ## Custom x-axis labels
-ax.set_xticklabels(['Random Forest',  'MLP','SVM', 'XGBoost','Ridge','Lasso','Multi Linear','Polynomial 2','Polynomial 3'])
+ax.set_xticklabels(['Random Forest', 'XGBoost','SVM','MLP','Lasso','Ridge','Multi-Linear'])
 ax.set_ylim(0,100)
 ax.set_ylabel("Percentage Error (%)")
 ## Remove top axes and right axes ticks
 ax.get_xaxis().tick_bottom()
 ax.get_yaxis().tick_left()
 
-fig.savefig('boxplots.png', dpi=1000)
-fig.savefig('boxplots.pdf')
+fig.savefig('boxplots-filtered2.png', dpi=1000)
+fig.savefig('boxplots-filtered2.pdf')
 
 #Principal Component Analysis
 features = dfML.columns[:-1]
@@ -350,7 +355,20 @@ plt.title('Feature Importance')
 plt.barh(range(len(indices)), importances[indices], color='b', align='center')
 plt.yticks(range(len(indices)), features[indices])
 plt.xlabel('Relative Importance')
-plt.savefig('Feature Importance.png', 
+plt.savefig('Feature Importance-filtered2.png', 
               bbox_inches='tight', dpi = 500,figsize=(8,6))
+df_estimationerrors.to_csv("errors-filtered.csv")
 
-df_estimationerrors.to_csv("errors.csv")
+predictions = [
+    {'Test Data1':y_test},
+    {'Test Data2':y_test2},
+    {'Random Forest Regression' : y_predicted_RF},
+    {'Linear Regression' : y_predicted_LREG},
+    {'XGBoost Regression': y_predicted_XGB },
+    {'Lasso Regression':y_predicted_LASSO},
+    {'Support Vector Machine': y_predicted_svr_rbf},
+    {'Multi-layer Perceptron': y_predicted_MLP}]
+
+predictions = np.array([y_test,y_test2,y_predicted_RF,y_predicted_LREG,y_predicted_XGB,y_predicted_LASSO,y_predicted_svr_rbf,y_predicted_MLP])
+df_predictions = pd.DataFrame(data = predictions, index =["y_test","y_test2","y_predicted_RF","y_predicted_LREG","y_predicted_XGB","y_predicted_LASSO","y_predicted_svr_rbf","y_predicted_MLP"])
+df_predictions.to_csv("predictionresults-test-filtered2.csv")
