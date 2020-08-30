@@ -1,9 +1,11 @@
-In this article, I will explain how to develop an Automated Supervised Machine Learning Regression program, which automatically tunes the hyperparameters and prints out the final results as tables, graphs and boxplots.
+In this article, I will explain how to develop an Automated Supervised Machine
+Learning Regression program, which automatically tunes the hyperparameters and
+prints out the final results as tables, graphs and boxplots.
 
-I always like to keep my libraries together, hence I import all of them at once in the beginning of the code.
+I always like to keep my libraries together, hence I import all of them at once
+in the beginning of the code.
 
-
-```python
+```{.python .input  n=17}
 import pandas as pd
 import numpy as np
 import statistics
@@ -21,172 +23,113 @@ from sklearn import linear_model
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import mean_squared_error
+import matplotlib.pyplot as plt
 ```
 
 Lets import our dataset and define the features and the predictors.
 
-
-```python
+```{.python .input  n=2}
 #Importing the datasets-------------------------------------------------------
 print ("Importing datasets")
-df = pd.read_csv('data.csv')  
+df = pd.read_csv('DATA.csv')  
 ```
 
-    Importing datasets
-    
+```{.json .output n=2}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Importing datasets\n"
+ }
+]
+```
 
-Let's take a look at how the dataset looks. I like using df.describe() function to have some statistics about each column.
+Let's take a look at how the dataset looks. I like using df.describe() function
+to have some statistics about each column.
 
-
-```python
+```{.python .input  n=3}
 df.describe()
 ```
 
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>A</th>
-      <th>B</th>
-      <th>C</th>
-      <th>D</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>count</th>
-      <td>999.000000</td>
-      <td>999.000000</td>
-      <td>999.000000</td>
-      <td>999.000000</td>
-    </tr>
-    <tr>
-      <th>mean</th>
-      <td>25.330330</td>
-      <td>25.052052</td>
-      <td>24.791792</td>
-      <td>24.837838</td>
-    </tr>
-    <tr>
-      <th>std</th>
-      <td>14.690016</td>
-      <td>14.494809</td>
-      <td>14.485799</td>
-      <td>15.160588</td>
-    </tr>
-    <tr>
-      <th>min</th>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <th>25%</th>
-      <td>13.000000</td>
-      <td>13.000000</td>
-      <td>12.000000</td>
-      <td>12.000000</td>
-    </tr>
-    <tr>
-      <th>50%</th>
-      <td>25.000000</td>
-      <td>25.000000</td>
-      <td>24.000000</td>
-      <td>25.000000</td>
-    </tr>
-    <tr>
-      <th>75%</th>
-      <td>38.000000</td>
-      <td>37.000000</td>
-      <td>37.000000</td>
-      <td>38.000000</td>
-    </tr>
-    <tr>
-      <th>max</th>
-      <td>50.000000</td>
-      <td>50.000000</td>
-      <td>50.000000</td>
-      <td>50.000000</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-As illustrated, this is a dataset with random points, which has a maximum value of 50 and minimum 0 in all columns. This is a 999x4 data. 
-
-Let's define the features as X and the column we want to predict (column D) as y. 
-
-
-```python
-X = df.iloc[:,:-1].values 
-y = df.iloc[:,3].values
+```{.json .output n=3}
+[
+ {
+  "data": {
+   "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>A</th>\n      <th>B</th>\n      <th>C</th>\n      <th>D</th>\n      <th>E</th>\n      <th>F</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>count</th>\n      <td>27.000000</td>\n      <td>27.000000</td>\n      <td>27.000000</td>\n      <td>27.000000</td>\n      <td>27.000000</td>\n      <td>27.000000</td>\n    </tr>\n    <tr>\n      <th>mean</th>\n      <td>12.438889</td>\n      <td>13.240741</td>\n      <td>722.518519</td>\n      <td>19.259259</td>\n      <td>12.296296</td>\n      <td>6883.202781</td>\n    </tr>\n    <tr>\n      <th>std</th>\n      <td>0.181518</td>\n      <td>1.476550</td>\n      <td>124.861884</td>\n      <td>1.631248</td>\n      <td>2.267069</td>\n      <td>1316.064353</td>\n    </tr>\n    <tr>\n      <th>min</th>\n      <td>12.050000</td>\n      <td>11.500000</td>\n      <td>496.000000</td>\n      <td>16.000000</td>\n      <td>9.000000</td>\n      <td>4032.191235</td>\n    </tr>\n    <tr>\n      <th>25%</th>\n      <td>12.350000</td>\n      <td>12.000000</td>\n      <td>632.500000</td>\n      <td>18.000000</td>\n      <td>11.000000</td>\n      <td>5955.425767</td>\n    </tr>\n    <tr>\n      <th>50%</th>\n      <td>12.400000</td>\n      <td>13.000000</td>\n      <td>720.000000</td>\n      <td>19.000000</td>\n      <td>12.000000</td>\n      <td>6654.906860</td>\n    </tr>\n    <tr>\n      <th>75%</th>\n      <td>12.525000</td>\n      <td>14.250000</td>\n      <td>832.000000</td>\n      <td>20.000000</td>\n      <td>14.000000</td>\n      <td>8137.799244</td>\n    </tr>\n    <tr>\n      <th>max</th>\n      <td>12.800000</td>\n      <td>17.000000</td>\n      <td>885.000000</td>\n      <td>23.000000</td>\n      <td>18.000000</td>\n      <td>9241.557194</td>\n    </tr>\n  </tbody>\n</table>\n</div>",
+   "text/plain": "               A          B           C          D          E            F\ncount  27.000000  27.000000   27.000000  27.000000  27.000000    27.000000\nmean   12.438889  13.240741  722.518519  19.259259  12.296296  6883.202781\nstd     0.181518   1.476550  124.861884   1.631248   2.267069  1316.064353\nmin    12.050000  11.500000  496.000000  16.000000   9.000000  4032.191235\n25%    12.350000  12.000000  632.500000  18.000000  11.000000  5955.425767\n50%    12.400000  13.000000  720.000000  19.000000  12.000000  6654.906860\n75%    12.525000  14.250000  832.000000  20.000000  14.000000  8137.799244\nmax    12.800000  17.000000  885.000000  23.000000  18.000000  9241.557194"
+  },
+  "execution_count": 3,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
-This defines X as all the values except the last column (columns A,B and C), and y as the last column (column numbers start from zero, hence: 0 - A, 1 - B, 2 - C, 3 - D).
+Let's define the features as X and the column we want to predict (column F) as
+y.
 
-For some algorithms we might want to use X as preprocessed (normalized) values (X2). This mostly provides higher accuracies for algorithms such as Multi Layer Perceptron (MLP) or Support Vector Machines (SVM). Hence, for the rest of the program, X2 will be used for non-linear ML algorithms such as random forest, XGBoost, MLP, SVM. However, X will be used for polynomial regressions and linear regression to evaluate the regression constants easier.
+```{.python .input  n=4}
+X = df.iloc[:,:-1].values 
+y = df.iloc[:,5].values
+```
 
+This defines X as all the values except the last column (columns A,B,C,D,E), and
+y as the last column (column numbers start from zero, hence: 0 - A, 1 - B, 2 -
+C, 3 - D,4 - E, 5 -F).
 
-```python
+For some algorithms we might want to use X as preprocessed (normalized) values
+(X2). This mostly provides higher accuracies for algorithms such as Multi Layer
+Perceptron (MLP) or Support Vector Machines (SVM). Hence, for the rest of the
+program, X2 will be used for non-linear ML algorithms such as random forest,
+XGBoost, MLP, SVM. However, X will be used for polynomial regressions and linear
+regression to evaluate the regression constants easier.
+
+```{.python .input  n=5}
 X2 = preprocessing.scale(X)
 ```
 
-We have to split our dataset as train and test data. For this we can use train_test_split by sklearn.model_selection. We will do this for both X and X2. Test size of 0.20 means that 20% of the data will be used as test data and 80% of the data will be used for training.
+We have to split our dataset as train and test data. For this we can use
+train_test_split by sklearn.model_selection. We will do this for both X and X2.
+Test size of 0.20 means that 20% of the data will be used as test data and 80%
+of the data will be used for training.
 
-
-```python
+```{.python .input  n=6}
 X_train, X_test, y_train, y_test= train_test_split(X,y,test_size = 0.20)
 X_train2, X_test2, y_train2, y_test2= train_test_split(X2,y,test_size = 0.20)
 
 ```
 
-We might not always want to tune the parameters of models, or only tune for some models. For this I have defined basic inputs. When they are set to "yes", the program will perform the tuning.
+We might not always want to tune the parameters of models, or only tune for some
+models. For this I have defined basic inputs. When they are set to "yes", the
+program will perform the tuning.
 
-
-```python
+```{.python .input  n=7}
 #Inputs------------------------------------------------------------------------
-randomforestparametertuning = "yes"
-XGboostparametertuning = "yes"
-SVMparametertuning ="yes"
-MLPparametertuning ="yes"
+randomforestparametertuning = "no" #yes or no
+XGboostparametertuning      = "no" #yes or no
+SVMparametertuning          = "no" #yes or no
+MLPparametertuning          = "no" #yes or no
 ```
 
-The first one is training, testing and tuning the random forest regression. The values of param_grid might be updated regarding the problem (i.e., some problems might require higher values of n_estimators, while some might require lower ranges).
+The first one is training, testing and tuning the random forest regression. The
+values of param_grid might be updated regarding the problem (i.e., some problems
+might require higher values of n_estimators, while some might require lower
+ranges).
 
-
-```python
+```{.python .input  n=8}
 if randomforestparametertuning == "yes":
     print ("Performing gridsearch in random forest")
 
     # Create the parameter grid based on the results of random search 
     param_grid = {
         'bootstrap': [True,False],
-        'max_depth': [40, 50, 60],
+        'max_depth': [40, 50, 60, 70],
         'max_features': ['auto', 'sqrt'],
         'min_samples_leaf': [1,2,3,],
-        'min_samples_split': [3,4,5],
-        'n_estimators': [100, 200, 300]
-    }
+        'min_samples_split': [3, 4, 5,6,7],
+        'n_estimators': [50,100,150,200,250,300,350,400,500]
+        }
+    
     # Create a based model
     rf = RandomForestRegressor()
     # Instantiate the grid search model
@@ -195,24 +138,15 @@ if randomforestparametertuning == "yes":
     
     # Fit the grid search to the data
     grid_search_RF.fit(X_train2, y_train2)
+    print("Grid Search Best Parameters for Random Forest Regression")
+    print (grid_search_RF.best_params_)
 ```
 
-    Performing gridsearch in random forest
-    Fitting 3 folds for each of 324 candidates, totalling 972 fits
-    
+The second one is training, testing and tuning the XGBoost regression. The
+values of grid might be updated regarding the problem (i.e., some problems might
+require higher values of n_estimators, while some might require lower ranges).
 
-    [Parallel(n_jobs=-1)]: Using backend LokyBackend with 4 concurrent workers.
-    [Parallel(n_jobs=-1)]: Done  33 tasks      | elapsed:   10.5s
-    [Parallel(n_jobs=-1)]: Done 154 tasks      | elapsed:   41.7s
-    [Parallel(n_jobs=-1)]: Done 357 tasks      | elapsed:  1.7min
-    [Parallel(n_jobs=-1)]: Done 640 tasks      | elapsed:  2.8min
-    [Parallel(n_jobs=-1)]: Done 972 out of 972 | elapsed:  4.0min finished
-    
-
-The second one is training, testing and tuning the XGBoost regression. The values of grid might be updated regarding the problem (i.e., some problems might require higher values of n_estimators, while some might require lower ranges).
-
-
-```python
+```{.python .input  n=9}
 #XGBoost Parameter Tuning------------------------------------------------------
 if XGboostparametertuning == "yes":
     print("XGBoost parameter tuning")
@@ -221,9 +155,9 @@ if XGboostparametertuning == "yes":
                     'gamma': [2,3,4,5],
                     'learning_rate': [0.1,0.2,0.3],
                     'max_depth': [8,9,10,11,12],
-                    'n_estimators': [10,15,20,25],
+                    'n_estimators': [150,200,250,300,350],
                     'subsample': [0.8,0.9,1],
-                    'reg_alpha': [15,16,17,18,19,20],
+                    'reg_alpha': [15,18,20],
                     'min_child_weight':[3,4,5]}
 
     # Create a based model
@@ -234,44 +168,20 @@ if XGboostparametertuning == "yes":
     
     # Fit the grid search to the data
     grid_search_XGB.fit(X_train2, y_train2)
+    print("Grid Search Best Parameters for XGBoost")
+    print (grid_search_XGB.best_params_) 
 ```
 
-    XGBoost parameter tuning
-    Fitting 3 folds for each of 38880 candidates, totalling 116640 fits
-    
+The third one is training, testing and tuning the SVM regression. The values of
+C_range or gamma_range might be updated regarding the problem.
 
-    [Parallel(n_jobs=-1)]: Using backend LokyBackend with 4 concurrent workers.
-    [Parallel(n_jobs=-1)]: Done  44 tasks      | elapsed:    1.8s
-    [Parallel(n_jobs=-1)]: Done 1832 tasks      | elapsed:   12.5s
-    [Parallel(n_jobs=-1)]: Done 5080 tasks      | elapsed:   34.2s
-    [Parallel(n_jobs=-1)]: Done 9608 tasks      | elapsed:  1.1min
-    [Parallel(n_jobs=-1)]: Done 15448 tasks      | elapsed:  1.8min
-    [Parallel(n_jobs=-1)]: Done 22568 tasks      | elapsed:  2.6min
-    [Parallel(n_jobs=-1)]: Done 31000 tasks      | elapsed:  3.7min
-    [Parallel(n_jobs=-1)]: Done 38912 tasks      | elapsed:  4.8min
-    [Parallel(n_jobs=-1)]: Done 49936 tasks      | elapsed:  6.2min
-    [Parallel(n_jobs=-1)]: Done 62240 tasks      | elapsed:  7.7min
-    [Parallel(n_jobs=-1)]: Done 75856 tasks      | elapsed:  9.1min
-    [Parallel(n_jobs=-1)]: Done 81808 tasks      | elapsed: 10.1min
-    [Parallel(n_jobs=-1)]: Done 89692 tasks      | elapsed: 11.3min
-    [Parallel(n_jobs=-1)]: Done 98436 tasks      | elapsed: 12.3min
-    [Parallel(n_jobs=-1)]: Done 107836 tasks      | elapsed: 13.6min
-    [Parallel(n_jobs=-1)]: Done 116640 out of 116640 | elapsed: 15.0min finished
-    
-
-    [22:07:12] WARNING: src/objective/regression_obj.cu:152: reg:linear is now deprecated in favor of reg:squarederror.
-    
-
-The third one is training, testing and tuning the SVM regression. The values of C_range or gamma_range might be updated regarding the problem.
-
-
-```python
+```{.python .input  n=10}
 #SVM Parameter Tuning----------------------------------------------------------
 if SVMparametertuning == "yes":
     print("SVM parameter tuning")
 
-    C_range = 10. ** np.arange(-3, 6)
-    gamma_range = 10. ** np.arange(-5, 2)
+    C_range = 10. ** np.arange(-3, 3)
+    gamma_range = 10. ** np.arange(-5, 3)
     param_grid = dict(gamma=gamma_range, C=C_range)
     svr_rbf = SVR()
     # Instantiate the grid search model
@@ -279,26 +189,19 @@ if SVMparametertuning == "yes":
                               cv = 3, n_jobs = -1, verbose = 2)
     # Fit the grid search to the data
     grid_search_svm.fit(X_train2, y_train2)
+    print("Grid Search Best Parameters for SVM")
+    print (grid_search_svm.best_params_)
 ```
 
-    SVM parameter tuning
-    Fitting 3 folds for each of 63 candidates, totalling 189 fits
-    
+The fourth one is training, testing and tuning the MLP algorithm. The values of
+param_grid might be updated regarding the problem.
 
-    [Parallel(n_jobs=-1)]: Using backend LokyBackend with 4 concurrent workers.
-    [Parallel(n_jobs=-1)]: Done  58 tasks      | elapsed:    1.6s
-    [Parallel(n_jobs=-1)]: Done 189 out of 189 | elapsed:  1.7min finished
-    
-
-The fourth one is training, testing and tuning the MLP algorithm. The values of param_grid might be updated regarding the problem.
-
-
-```python
+```{.python .input  n=11}
 if MLPparametertuning == "yes":
-    print("SVM parameter tuning")
+    print("MLP parameter tuning")
 
     param_grid = {
-        'hidden_layer_sizes': [10,20,30,40,50,60,70,80,90,100],
+        'hidden_layer_sizes': [50,100,150,200,250,300,350],
         'activation': ['identity','logistic','tanh','relu'],
         'solver': ['lbfgs', 'sgd','adam'],
         'learning_rate': ['constant','invscaling','adaptive']}
@@ -309,54 +212,23 @@ if MLPparametertuning == "yes":
     
     # Fit the grid search to the data
     grid_search_MLP.fit(X_train2, y_train2)
+    print("Grid Search Best Parameters for MLP")
+    print (grid_search_MLP.best_params_)
+
 ```
 
-    [Parallel(n_jobs=-1)]: Using backend LokyBackend with 4 concurrent workers.
-    
+The below commands provide a summary of the best parameters obtained from the
+GridSearch of all these four algortihms.
 
-    SVM parameter tuning
-    Fitting 3 folds for each of 360 candidates, totalling 1080 fits
-    
+Next thing, we will be fitting 9 different algortihms to our data to see which
+one performs the best. These are namely: multi linear regression, ridge
+regression, lasso regression, polynomial regression (degree=2), polynomial
+regression (degree=3), random forest regression (with the best parameters
+obtained from GridSearch), XGBoost regression (with the best parameters obtained
+from GridSearch), SVM regression (with the best parameters obtained from
+GridSearch) and MLP (with the best parameters obtained from GridSearch).
 
-    [Parallel(n_jobs=-1)]: Done  58 tasks      | elapsed:    4.9s
-    [Parallel(n_jobs=-1)]: Done 222 tasks      | elapsed:   21.8s
-    [Parallel(n_jobs=-1)]: Done 425 tasks      | elapsed:  1.0min
-    [Parallel(n_jobs=-1)]: Done 708 tasks      | elapsed:  2.0min
-    [Parallel(n_jobs=-1)]: Done 1073 tasks      | elapsed:  3.3min
-    [Parallel(n_jobs=-1)]: Done 1080 out of 1080 | elapsed:  3.4min finished
-    /opt/anaconda3/lib/python3.7/site-packages/sklearn/neural_network/_multilayer_perceptron.py:571: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
-      % self.max_iter, ConvergenceWarning)
-    
-
-The below commands provide a summary of the best parameters obtained from the GridSearch of all these four algortihms.
-
-
-```python
-#Summary of the tuning parameters----------------------------------------------
-print("Grid Search Best Parameters for Random Forest Regression")
-print (grid_search_RF.best_params_)
-print("Grid Search Best Parameters for XGBoost")
-print (grid_search_XGB.best_params_)    
-print("Grid Search Best Parameters for SVM")
-print (grid_search_svm.best_params_)
-print("Grid Search Best Parameters for MLP")
-print (grid_search_MLP.best_params_)
-```
-
-    Grid Search Best Parameters for Random Forest Regression
-    {'bootstrap': True, 'max_depth': 50, 'max_features': 'sqrt', 'min_samples_leaf': 3, 'min_samples_split': 4, 'n_estimators': 100}
-    Grid Search Best Parameters for XGBoost
-    {'colsample_bytree': 0.9, 'gamma': 5, 'learning_rate': 0.2, 'max_depth': 11, 'min_child_weight': 5, 'n_estimators': 15, 'reg_alpha': 16, 'subsample': 0.8}
-    Grid Search Best Parameters for SVM
-    {'C': 1.0, 'gamma': 10.0}
-    Grid Search Best Parameters for MLP
-    {'activation': 'tanh', 'hidden_layer_sizes': 20, 'learning_rate': 'constant', 'solver': 'sgd'}
-    
-
-Next thing, we will be fitting 9 different algortihms to our data to see which one performs the best. These are namely: multi linear regression, ridge regression, lasso regression, polynomial regression (degree=2), polynomial regression (degree=3), random forest regression (with the best parameters obtained from GridSearch), XGBoost regression (with the best parameters obtained from GridSearch), SVM regression (with the best parameters obtained from GridSearch) and MLP (with the best parameters obtained from GridSearch).
-
-
-```python
+```{.python .input  n=12}
 #Fitting multi linear regression to data---------------------------------------
 print ("Fit multilinear regression")
 linreg = LinearRegression()
@@ -367,82 +239,76 @@ print ("Fit ridge regression")
 ridgeReg = Ridge(alpha=0.05, normalize=True)
 ridgeReg.fit(X_train,y_train)
 
+#Fitting random forest regression to data--------------------------------------
+print ("Fit random forest regression")
+try:
+    randreg = RandomForestRegressor(**grid_search_RF.best_params_)
+except:
+    randreg = RandomForestRegressor()
+randreg.fit(X_train2,y_train2)
+
+#Fitting XGboost regression to data--------------------------------------------
+print ("Fit XGBoost regression")
+try:
+    XGBreg = XGBRegressor(**grid_search_XGB.best_params_)
+except: 
+    XGBreg = XGBRegressor()
+XGBreg.fit(X_train2, y_train2)
+
 #Fitting LASSO regression to data----------------------------------------------
 print ("Fit Lasso regression")
 lassoreg = Lasso(alpha=0.01, max_iter=10e5)
 lassoreg.fit(X_train, y_train)
 
-#Polynomial regression 2 degrees
-print ("Fit polynomial regression degree=2")
-poly2 = PolynomialFeatures(degree=2)
-X_train_trans = poly2.fit_transform(X_train)
-polyreg2 = linear_model.LinearRegression()
-p=polyreg2.fit(X_train_trans,y_train)
-poly2_coef = polyreg2.coef_
-
-#Polynomial regression 3 degrees
-print ("Fit polynomial regression degree=3")
-poly3 = PolynomialFeatures(degree=3)
-X_train_trans = poly3.fit_transform(X_train)
-polyreg3 = linear_model.LinearRegression()
-polyreg3.fit(X_train_trans,y_train)
-poly3_coef = polyreg3.coef_
-
-#Fitting random forest regression to data--------------------------------------
-print ("Fit random forest regression")
-randreg = RandomForestRegressor(**grid_search_RF.best_params_)
-randreg.fit(X_train2,y_train2)
-
-#Fitting XGboost regression to data--------------------------------------------
-print ("Fit XGBoost regression")
-XGBreg = XGBRegressor(**grid_search_XGB.best_params_)
-XGBreg.fit(X_train2, y_train2)
-
 #Support Vector Machines-------------------------------------------------------
-svr_rbf = SVR(**grid_search_svm.best_params_)
 print ("Fit SVR RBF regression")
-svr_rbf.fit(X_train2, y_train2)
+try:
+    svr_rbf = SVR(**grid_search_svm.best_params_)
+except:
+    svr_rbf = SVR()
+    svr_rbf.fit(X_train2, y_train2)
 
 #MLP Regressor-----------------------------------------------------------------
-MLP = MLPRegressor(**grid_search_MLP.best_params_)
 print ("Fit Multi-layer Perceptron regressor")
+try:
+    MLP = MLPRegressor(**grid_search_MLP.best_params_)
+except:
+    MLP = MLPRegressor()    
 MLP.fit(X_train2, y_train2)
 ```
 
-    Fit multilinear regression
-    Fit ridge regression
-    Fit Lasso regression
-    Fit polynomial regression degree=2
-    Fit polynomial regression degree=3
-    Fit random forest regression
-    Fit XGBoost regression
-    [22:12:20] WARNING: src/objective/regression_obj.cu:152: reg:linear is now deprecated in favor of reg:squarederror.
-    Fit SVR RBF regression
-    Fit Multi-layer Perceptron regressor
-    
+```{.json .output n=12}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Fit multilinear regression\nFit ridge regression\nFit random forest regression\nFit XGBoost regression\nFit Lasso regression\nFit SVR RBF regression\nFit Multi-layer Perceptron regressor\n"
+ },
+ {
+  "name": "stderr",
+  "output_type": "stream",
+  "text": "C:\\Users\\Admin\\anaconda3\\lib\\site-packages\\sklearn\\neural_network\\_multilayer_perceptron.py:571: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.\n  % self.max_iter, ConvergenceWarning)\n"
+ },
+ {
+  "data": {
+   "text/plain": "MLPRegressor(activation='relu', alpha=0.0001, batch_size='auto', beta_1=0.9,\n             beta_2=0.999, early_stopping=False, epsilon=1e-08,\n             hidden_layer_sizes=(100,), learning_rate='constant',\n             learning_rate_init=0.001, max_fun=15000, max_iter=200,\n             momentum=0.9, n_iter_no_change=10, nesterovs_momentum=True,\n             power_t=0.5, random_state=None, shuffle=True, solver='adam',\n             tol=0.0001, validation_fraction=0.1, verbose=False,\n             warm_start=False)"
+  },
+  "execution_count": 12,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
 
-    /opt/anaconda3/lib/python3.7/site-packages/sklearn/neural_network/_multilayer_perceptron.py:571: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.
-      % self.max_iter, ConvergenceWarning)
-    
+For the error analysis, we are using four different statistics. The first one is
+r_score, which is the r2 (coefficient of determination) of the test data and the
+predicted data. The second is MAE = Mean Absolute Error, the third one is MSE =
+Mean Squared Error and the third one is MAPE = Mean Absolute Percentage Error.
+The MAE and MSE calculations come directly from sklearn.metrics /
+mean_absolute_error and mean_squared_error. For the r_score and MAPE, we are
+defining below functions.
 
-
-
-
-    MLPRegressor(activation='tanh', alpha=0.0001, batch_size='auto', beta_1=0.9,
-                 beta_2=0.999, early_stopping=False, epsilon=1e-08,
-                 hidden_layer_sizes=20, learning_rate='constant',
-                 learning_rate_init=0.001, max_fun=15000, max_iter=200,
-                 momentum=0.9, n_iter_no_change=10, nesterovs_momentum=True,
-                 power_t=0.5, random_state=None, shuffle=True, solver='sgd',
-                 tol=0.0001, validation_fraction=0.1, verbose=False,
-                 warm_start=False)
-
-
-
-For the error analysis, we are using four different statistics. The first one is r_score, which is the r2 (coefficient of determination) of the test data and the predicted data. The second is MAE = Mean Absolute Error, the third one is MSE = Mean Squared Error and the third one is MAPE = Mean Absolute Percentage Error. The MAE and MSE calculations come directly from sklearn.metrics / mean_absolute_error and mean_squared_error. For the r_score and MAPE, we are defining below functions.
-
-
-```python
+```{.python .input  n=13}
 #Define the missing sklearn.metrics parameter of mean absolute percentage error
 def mean_absolute_percentage_error(y_true, y_pred): 
     y_true, y_pred = np.array(y_true), np.array(y_pred)
@@ -457,10 +323,10 @@ def r_score(y_true, y_pred):
     return r_squared
 ```
 
-Now that the error statistics are defined, lets predict the predicted values by the algorithm and calculate the errors.
+Now that the error statistics are defined, lets predict the predicted values by
+the algorithm and calculate the errors.
 
-
-```python
+```{.python .input  n=14}
 y_predicted_RF = randreg.predict(X_test2)
 y_predicted_LREG = linreg.predict(X_test)
 y_predicted_RIDGE = ridgeReg.predict(X_test)
@@ -468,8 +334,6 @@ y_predicted_XGB = XGBreg.predict(X_test2)
 y_predicted_LASSO = lassoreg.predict(X_test)
 y_predicted_svr_rbf = svr_rbf.predict(X_test2)
 y_predicted_MLP = MLP.predict(X_test2)
-y_predicted_PREG2 = polyreg2.predict(poly2.fit_transform(X_test))
-y_predicted_PREG3 = polyreg3.predict(poly3.fit_transform(X_test))
 
 r_RF=  r_score(y_test2, y_predicted_RF)
 MAE_RF = mean_absolute_error(y_test2, y_predicted_RF)
@@ -506,149 +370,38 @@ MAE_MLP = mean_absolute_error(y_test2, y_predicted_MLP)
 MSE_MLP = mean_squared_error(y_test2, y_predicted_MLP)
 MAPE_MLP = mean_absolute_percentage_error(y_test2, y_predicted_MLP)
 
-r_PREG2= r_score(y_test, y_predicted_PREG2)
-MAE_PREG2= mean_absolute_error(y_test, y_predicted_PREG2)
-MSE_PREG2= mean_squared_error(y_test, y_predicted_PREG2)
-MAPE_PREG2= np.mean(mean_absolute_percentage_error(y_test, y_predicted_PREG2))
-
-r_PREG3= r_score(y_test, y_predicted_PREG3)
-MAE_PREG3= mean_absolute_error(y_test, y_predicted_PREG3)
-MSE_PREG3= mean_squared_error(y_test, y_predicted_PREG3)
-MAPE_PREG3= np.mean(mean_absolute_percentage_error(y_test, y_predicted_PREG3))
-
 errors = [{'Model Name': 'Random Forest Regression', 'R2': r_RF, 'MAE': MAE_RF, 'MSE': MSE_RF, 'MAPE (%)': np.mean(MAPE_RF), 'Median Error (%)': statistics.median(MAPE_RF)},
           {'Model Name': 'Linear Regression', 'R2': r_LREG, 'MAE': MAE_LREG, 'MSE': MSE_LREG, 'MAPE (%)': np.mean(MAPE_LREG), 'Median Error (%)': statistics.median(MAPE_LREG)},
           {'Model Name': 'Ridge Regression', 'R2': r_RIDGE, 'MAE': MAE_RIDGE, 'MSE': MSE_RIDGE, 'MAPE (%)': np.mean(MAPE_RIDGE), 'Median Error (%)': statistics.median(MAPE_RIDGE)},
           {'Model Name': 'XGBoost Regression', 'R2': r_XGB, 'MAE': MAE_XGB, 'MSE': MSE_XGB, 'MAPE (%)': np.mean(MAPE_XGB), 'Median Error (%)': statistics.median(MAPE_XGB)},
           {'Model Name': 'Lasso Regression', 'R2': r_LASSO, 'MAE': MAE_LASSO, 'MSE': MSE_LASSO, 'MAPE (%)': np.mean(MAPE_LASSO), 'Median Error (%)': statistics.median(MAPE_LASSO)},
           {'Model Name': 'Support Vector Machine', 'R2': r_svr_rbf, 'MAE': MAE_svr_rbf, 'MSE': MSE_svr_rbf, 'MAPE (%)': np.mean(MAPE_svr_rbf), 'Median Error (%)': statistics.median(MAPE_svr_rbf)},
-          {'Model Name': 'Multi-layer Perceptron', 'R2': r_MLP, 'MAE': MAE_MLP, 'MSE': MSE_MLP, 'MAPE (%)': np.mean(MAPE_MLP), 'Median Error (%)': statistics.median(MAPE_MLP)},
-          {'Model Name': '2nd Polynomial Regression', 'R2': r_PREG2 , 'MAE': MAE_PREG2 , 'MSE': MSE_PREG2 , 'MAPE (%)': MAPE_PREG2},
-          {'Model Name': '3rd Polynomial Regression', 'R2': r_PREG3 , 'MAE': MAE_PREG3 , 'MSE': MSE_PREG3 , 'MAPE (%)': MAPE_PREG3}]
+          {'Model Name': 'Multi-layer Perceptron', 'R2': r_MLP, 'MAE': MAE_MLP, 'MSE': MSE_MLP, 'MAPE (%)': np.mean(MAPE_MLP), 'Median Error (%)': statistics.median(MAPE_MLP)}]
 
 df_estimationerrors = pd.DataFrame(errors)
 df_estimationerrors= df_estimationerrors.sort_values(by=['Median Error (%)'])
 ```
 
-    /opt/anaconda3/lib/python3.7/site-packages/ipykernel_launcher.py:4: RuntimeWarning: divide by zero encountered in true_divide
-      after removing the cwd from sys.path.
-    /opt/anaconda3/lib/python3.7/site-packages/ipykernel_launcher.py:4: RuntimeWarning: divide by zero encountered in true_divide
-      after removing the cwd from sys.path.
-    /opt/anaconda3/lib/python3.7/site-packages/ipykernel_launcher.py:4: RuntimeWarning: divide by zero encountered in true_divide
-      after removing the cwd from sys.path.
-    /opt/anaconda3/lib/python3.7/site-packages/ipykernel_launcher.py:4: RuntimeWarning: divide by zero encountered in true_divide
-      after removing the cwd from sys.path.
-    /opt/anaconda3/lib/python3.7/site-packages/ipykernel_launcher.py:4: RuntimeWarning: divide by zero encountered in true_divide
-      after removing the cwd from sys.path.
-    /opt/anaconda3/lib/python3.7/site-packages/ipykernel_launcher.py:4: RuntimeWarning: divide by zero encountered in true_divide
-      after removing the cwd from sys.path.
-    /opt/anaconda3/lib/python3.7/site-packages/ipykernel_launcher.py:4: RuntimeWarning: divide by zero encountered in true_divide
-      after removing the cwd from sys.path.
-    /opt/anaconda3/lib/python3.7/site-packages/ipykernel_launcher.py:4: RuntimeWarning: divide by zero encountered in true_divide
-      after removing the cwd from sys.path.
-    /opt/anaconda3/lib/python3.7/site-packages/ipykernel_launcher.py:4: RuntimeWarning: divide by zero encountered in true_divide
-      after removing the cwd from sys.path.
-    
+Let's take a look at our error table:
 
-Let's look at how our error table looks like:
-
-
-```python
+```{.python .input  n=15}
 print(df_estimationerrors)
 ```
 
-                      Model Name        R2        MAE         MSE  MAPE (%)  \
-    1          Linear Regression -0.020588  12.053405  201.081182       inf   
-    4           Lasso Regression -0.020576  12.053432  201.078812       inf   
-    2           Ridge Regression -0.019932  12.052451  200.951796       inf   
-    6     Multi-layer Perceptron -0.033154  13.295343  235.210240       inf   
-    0   Random Forest Regression -0.112244  13.626612  253.216151       inf   
-    5     Support Vector Machine -0.017291  13.176381  231.599012       inf   
-    3         XGBoost Regression -0.134958  13.669333  258.387192       inf   
-    7  2nd Polynomial Regression -0.016995  12.045494  200.373243       inf   
-    8  3rd Polynomial Regression  0.008126  11.821172  195.423782       inf   
-    
-       Median Error (%)  
-    1         39.029110  
-    4         39.031660  
-    2         39.084200  
-    6         42.218712  
-    0         43.739991  
-    5         44.800299  
-    3         45.744380  
-    7               NaN  
-    8               NaN  
-    
-
-We can also visualize our erros by BoxPlots:
-
-
-```python
-#Boxplot 
-import matplotlib.pyplot as plt 
-
-# Create a figure instance
-fig = plt.figure(1, figsize=(9, 6))
-
-# Create an axes instance
-ax = fig.add_subplot(111)
-data_to_plot = [MAPE_RF,MAPE_MLP,MAPE_svr_rbf,MAPE_XGB,MAPE_RIDGE,MAPE_LASSO,MAPE_LREG,MAPE_PREG2,MAPE_PREG3]
-
-# Create the boxplot
-bp = ax.boxplot(data_to_plot)
-## add patch_artist=True option to ax.boxplot() 
-## to get fill color
-bp = ax.boxplot(data_to_plot, patch_artist=True)
-
-## change outline color, fill color and linewidth of the boxes
-for box in bp['boxes']:
-    # change outline color
-    box.set( color='#7570b3', linewidth=2)
-    # change fill color
-    box.set( facecolor = '#1b9e77' )
-
-## change color and linewidth of the whiskers
-for whisker in bp['whiskers']:
-    whisker.set(color='#7570b3', linewidth=2)
-
-## change color and linewidth of the caps
-for cap in bp['caps']:
-    cap.set(color='#7570b3', linewidth=2)
-
-## change color and linewidth of the medians
-for median in bp['medians']:
-    median.set(color='#b2df8a', linewidth=2)
-
-## change the style of fliers and their fill
-for flier in bp['fliers']:
-    flier.set(marker='o', color='#e7298a', alpha=0.5)
-              
-## Custom x-axis labels
-ax.set_xticklabels(['Random Forest',  'MLP','SVM', 'XGBoost','Ridge','Lasso','Multi Linear','Polynomial 2','Polynomial 3'])
-ax.set_ylim(0,100)
-ax.set_ylabel("Percentage Error (%)")
-## Remove top axes and right axes ticks
-ax.get_xaxis().tick_bottom()
-ax.get_yaxis().tick_left()
-
-fig.savefig('boxplots.png', dpi=1000)
-fig.savefig('boxplots.pdf')
+```{.json .output n=15}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "                 Model Name         R2          MAE           MSE   MAPE (%)  \\\n1         Linear Regression   0.988445   109.671023  1.941709e+04   1.427712   \n4          Lasso Regression   0.988437   109.709483  1.943049e+04   1.428133   \n2          Ridge Regression   0.984014   130.192410  2.686210e+04   1.620047   \n5    Support Vector Machine  -0.055287   742.351076  8.867127e+05  13.179532   \n3        XGBoost Regression   0.465497   607.003915  4.491201e+05   9.098057   \n0  Random Forest Regression   0.387519   710.505778  5.146419e+05  11.476428   \n6    Multi-layer Perceptron -49.154381  6426.365156  4.214259e+07  99.851249   \n\n   Median Error (%)  \n1          1.464946  \n4          1.465053  \n2          1.632919  \n5          8.310402  \n3          9.071413  \n0         10.304616  \n6         99.869765  \n"
+ }
+]
 ```
 
-    /opt/anaconda3/lib/python3.7/site-packages/numpy/lib/function_base.py:3942: RuntimeWarning: invalid value encountered in multiply
-      x2 = take(ap, indices_above, axis=axis) * weights_above
-    /opt/anaconda3/lib/python3.7/site-packages/numpy/lib/function_base.py:3942: RuntimeWarning: invalid value encountered in multiply
-      x2 = take(ap, indices_above, axis=axis) * weights_above
-    
+Moreover, perform a principal component analysis (PCA) using the random forest
+regression results:
 
-
-![png](autoML_files/autoML_36_1.png)
-
-
-Moreover, perform a principal component analysis (PCA) using the random forest regression results:
-
-
-```python
+```{.python .input  n=18}
 #Principal Component Analysis
 features = df.columns[:-1]
 importances = randreg.feature_importances_
@@ -659,16 +412,46 @@ plt.barh(range(len(indices)), importances[indices], color='b', align='center')
 plt.yticks(range(len(indices)), features[indices])
 plt.xlabel('Relative Importance')
 plt.savefig('Feature Importance.png', 
-              bbox_inches='tight', dpi = 500,figsize=(8,6))
+              bbox_inches='tight', dpi = 500)
 
 df_estimationerrors.to_csv("errors.csv")
 ```
 
+```{.json .output n=18}
+[
+ {
+  "data": {
+   "image/png": "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\n",
+   "text/plain": "<Figure size 432x288 with 1 Axes>"
+  },
+  "metadata": {
+   "needs_background": "light"
+  },
+  "output_type": "display_data"
+ }
+]
+```
 
-![png](autoML_files/autoML_38_0.png)
+```{.python .input}
 
+```
 
+```{.python .input}
 
-```python
+```
+
+```{.python .input}
+
+```
+
+```{.python .input}
+
+```
+
+```{.python .input}
+
+```
+
+```{.python .input}
 
 ```
