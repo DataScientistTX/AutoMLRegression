@@ -34,16 +34,6 @@ print ("Importing datasets")
 df = pd.read_csv('DATA.csv')  
 ```
 
-```{.json .output n=2}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "Importing datasets\n"
- }
-]
-```
-
 Let's take a look at how the dataset looks. I like using df.describe() function
 to have some statistics about each column.
 
@@ -51,19 +41,6 @@ to have some statistics about each column.
 df.describe()
 ```
 
-```{.json .output n=3}
-[
- {
-  "data": {
-   "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>A</th>\n      <th>B</th>\n      <th>C</th>\n      <th>D</th>\n      <th>E</th>\n      <th>F</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>count</th>\n      <td>27.000000</td>\n      <td>27.000000</td>\n      <td>27.000000</td>\n      <td>27.000000</td>\n      <td>27.000000</td>\n      <td>27.000000</td>\n    </tr>\n    <tr>\n      <th>mean</th>\n      <td>12.438889</td>\n      <td>13.240741</td>\n      <td>722.518519</td>\n      <td>19.259259</td>\n      <td>12.296296</td>\n      <td>6883.202781</td>\n    </tr>\n    <tr>\n      <th>std</th>\n      <td>0.181518</td>\n      <td>1.476550</td>\n      <td>124.861884</td>\n      <td>1.631248</td>\n      <td>2.267069</td>\n      <td>1316.064353</td>\n    </tr>\n    <tr>\n      <th>min</th>\n      <td>12.050000</td>\n      <td>11.500000</td>\n      <td>496.000000</td>\n      <td>16.000000</td>\n      <td>9.000000</td>\n      <td>4032.191235</td>\n    </tr>\n    <tr>\n      <th>25%</th>\n      <td>12.350000</td>\n      <td>12.000000</td>\n      <td>632.500000</td>\n      <td>18.000000</td>\n      <td>11.000000</td>\n      <td>5955.425767</td>\n    </tr>\n    <tr>\n      <th>50%</th>\n      <td>12.400000</td>\n      <td>13.000000</td>\n      <td>720.000000</td>\n      <td>19.000000</td>\n      <td>12.000000</td>\n      <td>6654.906860</td>\n    </tr>\n    <tr>\n      <th>75%</th>\n      <td>12.525000</td>\n      <td>14.250000</td>\n      <td>832.000000</td>\n      <td>20.000000</td>\n      <td>14.000000</td>\n      <td>8137.799244</td>\n    </tr>\n    <tr>\n      <th>max</th>\n      <td>12.800000</td>\n      <td>17.000000</td>\n      <td>885.000000</td>\n      <td>23.000000</td>\n      <td>18.000000</td>\n      <td>9241.557194</td>\n    </tr>\n  </tbody>\n</table>\n</div>",
-   "text/plain": "               A          B           C          D          E            F\ncount  27.000000  27.000000   27.000000  27.000000  27.000000    27.000000\nmean   12.438889  13.240741  722.518519  19.259259  12.296296  6883.202781\nstd     0.181518   1.476550  124.861884   1.631248   2.267069  1316.064353\nmin    12.050000  11.500000  496.000000  16.000000   9.000000  4032.191235\n25%    12.350000  12.000000  632.500000  18.000000  11.000000  5955.425767\n50%    12.400000  13.000000  720.000000  19.000000  12.000000  6654.906860\n75%    12.525000  14.250000  832.000000  20.000000  14.000000  8137.799244\nmax    12.800000  17.000000  885.000000  23.000000  18.000000  9241.557194"
-  },
-  "execution_count": 3,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
 
 Let's define the features as X and the column we want to predict (column F) as
 y.
@@ -277,29 +254,6 @@ except:
 MLP.fit(X_train2, y_train2)
 ```
 
-```{.json .output n=12}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "Fit multilinear regression\nFit ridge regression\nFit random forest regression\nFit XGBoost regression\nFit Lasso regression\nFit SVR RBF regression\nFit Multi-layer Perceptron regressor\n"
- },
- {
-  "name": "stderr",
-  "output_type": "stream",
-  "text": "C:\\Users\\Admin\\anaconda3\\lib\\site-packages\\sklearn\\neural_network\\_multilayer_perceptron.py:571: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (200) reached and the optimization hasn't converged yet.\n  % self.max_iter, ConvergenceWarning)\n"
- },
- {
-  "data": {
-   "text/plain": "MLPRegressor(activation='relu', alpha=0.0001, batch_size='auto', beta_1=0.9,\n             beta_2=0.999, early_stopping=False, epsilon=1e-08,\n             hidden_layer_sizes=(100,), learning_rate='constant',\n             learning_rate_init=0.001, max_fun=15000, max_iter=200,\n             momentum=0.9, n_iter_no_change=10, nesterovs_momentum=True,\n             power_t=0.5, random_state=None, shuffle=True, solver='adam',\n             tol=0.0001, validation_fraction=0.1, verbose=False,\n             warm_start=False)"
-  },
-  "execution_count": 12,
-  "metadata": {},
-  "output_type": "execute_result"
- }
-]
-```
-
 For the error analysis, we are using four different statistics. The first one is
 r_score, which is the r2 (coefficient of determination) of the test data and the
 predicted data. The second is MAE = Mean Absolute Error, the third one is MSE =
@@ -388,16 +342,6 @@ Let's take a look at our error table:
 print(df_estimationerrors)
 ```
 
-```{.json .output n=15}
-[
- {
-  "name": "stdout",
-  "output_type": "stream",
-  "text": "                 Model Name         R2          MAE           MSE   MAPE (%)  \\\n1         Linear Regression   0.988445   109.671023  1.941709e+04   1.427712   \n4          Lasso Regression   0.988437   109.709483  1.943049e+04   1.428133   \n2          Ridge Regression   0.984014   130.192410  2.686210e+04   1.620047   \n5    Support Vector Machine  -0.055287   742.351076  8.867127e+05  13.179532   \n3        XGBoost Regression   0.465497   607.003915  4.491201e+05   9.098057   \n0  Random Forest Regression   0.387519   710.505778  5.146419e+05  11.476428   \n6    Multi-layer Perceptron -49.154381  6426.365156  4.214259e+07  99.851249   \n\n   Median Error (%)  \n1          1.464946  \n4          1.465053  \n2          1.632919  \n5          8.310402  \n3          9.071413  \n0         10.304616  \n6         99.869765  \n"
- }
-]
-```
-
 Moreover, perform a principal component analysis (PCA) using the random forest
 regression results:
 
@@ -415,43 +359,4 @@ plt.savefig('Feature Importance.png',
               bbox_inches='tight', dpi = 500)
 
 df_estimationerrors.to_csv("errors.csv")
-```
-
-```{.json .output n=18}
-[
- {
-  "data": {
-   "image/png": "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\n",
-   "text/plain": "<Figure size 432x288 with 1 Axes>"
-  },
-  "metadata": {
-   "needs_background": "light"
-  },
-  "output_type": "display_data"
- }
-]
-```
-
-```{.python .input}
-
-```
-
-```{.python .input}
-
-```
-
-```{.python .input}
-
-```
-
-```{.python .input}
-
-```
-
-```{.python .input}
-
-```
-
-```{.python .input}
-
 ```
