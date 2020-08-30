@@ -405,7 +405,7 @@ df_estimationerrors.to_csv("errors.csv")
 ```
 
 The program will automatically run and provide the following PCA plot depending on the dataset:
-![](Feature Importance.png)
+![](FeatureImportance.png)
 
 
 ## Contributing
