@@ -1,6 +1,49 @@
-In this article, I will explain how to develop an Automated Supervised Machine
-Learning Regression program, which automatically tunes the hyperparameters and
-prints out the final results as tables, graphs and boxplots.
+# Auto Machine Learning Regression
+
+This script provides an Automated Supervised Machine Learning Regression program, which automatically tunes the hyperparameters and prints out the final results as tables,graphs and boxplots.
+
+## Installation
+
+In the  terminal from the home directory, use the command git clone, then paste the link from your clipboard, or copy the command and link from below:
+
+```bash
+git clone https://github.com/sercangul/AutoMachineLearning.git
+```
+
+Change directories to the new ~/Herschel-Bulkley-GUI directory:
+
+```bash
+cd ~/AutoMachineLearning/
+```
+
+To ensure that your master branch is up-to-date, use the pull command:
+
+```bash
+git pull https://github.com/sercangul/AutoMachineLearning master
+```
+
+Install required python packages using requirements.txt:
+
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
+
+Change directories to the new ~/Herschel-Bulkley-GUI directory:
+
+```bash
+cd ~/AutoMachineLearning/
+```
+
+Run the script using Python:
+
+```bash
+python autoML.py
+```
+
+## Step by step explanation of the script
+
 
 I always like to keep my libraries together, hence I import all of them at once
 in the beginning of the code.
@@ -360,3 +403,15 @@ plt.savefig('Feature Importance.png',
 
 df_estimationerrors.to_csv("errors.csv")
 ```
+
+The program will automatically run and provide the following PCA plot depending on the dataset:
+![](Feature Importance.png)
+
+
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+[Apache 2.0](https://choosealicense.com/licenses/apache-2.0/)
