@@ -306,45 +306,6 @@ fig = plt.figure(1, figsize=(9, 6))
 ax = fig.add_subplot(111)
 data_to_plot = [MAPE_RF,MAPE_XGB, MAPE_svr_rbf, MAPE_MLP,MAPE_LASSO,MAPE_RIDGE,MAPE_LREG]
 
-# Create the boxplot
-bp = ax.boxplot(data_to_plot)
-## add patch_artist=True option to ax.boxplot() 
-## to get fill color
-bp = ax.boxplot(data_to_plot, patch_artist=True)
-
-## change outline color, fill color and linewidth of the boxes
-for box in bp['boxes']:
-    # change outline color
-    box.set( color='#7570b3', linewidth=2)
-    # change fill color
-    box.set( facecolor = '#1b9e77' )
-
-## change color and linewidth of the whiskers
-for whisker in bp['whiskers']:
-    whisker.set(color='#7570b3', linewidth=2)
-
-## change color and linewidth of the caps
-for cap in bp['caps']:
-    cap.set(color='#7570b3', linewidth=2)
-
-## change color and linewidth of the medians
-for median in bp['medians']:
-    median.set(color='#b2df8a', linewidth=2)
-
-## change the style of fliers and their fill
-for flier in bp['fliers']:
-    flier.set(marker='o', color='#e7298a', alpha=0.5)
-              
-## Custom x-axis labels
-ax.set_xticklabels(['Random Forest', 'XGBoost','SVM','MLP','Lasso','Ridge','Multi-Linear'])
-ax.set_ylim(0,100)
-ax.set_ylabel("Percentage Error (%)")
-## Remove top axes and right axes ticks
-ax.get_xaxis().tick_bottom()
-ax.get_yaxis().tick_left()
-
-fig.savefig('boxplots-filtered2.png', dpi=1000)
-fig.savefig('boxplots-filtered2.pdf')
 
 #Principal Component Analysis
 features = dfML.columns[:-1]
