@@ -397,16 +397,10 @@ plt.xlabel('Relative Importance')
 plt.savefig('Feature Importance.png', 
               bbox_inches='tight', dpi = 500)
 ```
-   
-![png](output_41_0.png)
-    
 
 ```python
 
 ```
-
-![](FeatureImportance.png)
-
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
