@@ -403,5 +403,12 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 Please make sure to update tests as appropriate.
 
+## TODO:
+Seanborn pairwise plots
+Visualization of best 3 fits (predicted vs test)
+K-fold cross validation results of each model
+Visualization of error analysis (comparison boxplots)
+Data imputation in case of missing data points (using KNN)
+
 ## License
 [Apache 2.0](https://choosealicense.com/licenses/apache-2.0/)
