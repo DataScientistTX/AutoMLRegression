@@ -7,19 +7,19 @@ This script provides an Automated Supervised Machine Learning Regression program
 In the  terminal from the home directory, use the command git clone, then paste the link from your clipboard, or copy the command and link from below:
 
 ```bash
-git clone https://github.com/sercangul/AutoMachineLearning.git
+git clone https://github.com/sercangul/AutoMLRegression.git
 ```
 
-Change directories to the new ~/Herschel-Bulkley-GUI directory:
+Change directories to the new ~/AutoMLRegression directory:
 
 ```bash
-cd AutoMachineLearning
+cd AutoMLRegression
 ```
 
 To ensure that your master branch is up-to-date, use the pull command:
 
 ```bash
-git pull https://github.com/sercangul/AutoMachineLearning
+git pull https://github.com/sercangul/AutoMLRegression
 ```
 
 Install required python packages using requirements.txt:
@@ -30,10 +30,10 @@ pip install -r requirements.txt
 
 ## Usage
 
-Change directories to the new /AutoMachineLearning directory:
+Change directories to the new /AutoMLRegression directory:
 
 ```bash
-cd AutoMachineLearning
+cd AutoMLRegression
 ```
 
 Run the script using Python:
