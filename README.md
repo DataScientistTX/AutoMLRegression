@@ -406,6 +406,8 @@ Please make sure to update tests as appropriate.
 ## TODO:
 Seanborn pairwise plots
 
+Combination with pandas profiling
+
 Visualization of best 3 fits (predicted vs test)
 
 K-fold cross validation results of each model
