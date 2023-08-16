@@ -5,8 +5,6 @@
 
 # Let's import all libraries.
 
-# In[1]:
-
 
 import pandas as pd
 import numpy as np
@@ -41,23 +39,12 @@ import matplotlib.pyplot as plt
 
 # Lets import our dataset from the csv files as a dataframe.
 
-# In[2]:
-
-
 df = pd.read_csv('data.csv')  
 
 
 # Let's take a look at dataset. I like using df.describe() function to have some statistics about each column.
 
-# In[3]:
-
-
 df.describe().T
-
-
-# Let's define the features as X and the column we want to predict (column F) as y. 
-
-# In[4]:
 
 
 n = len(df.columns)
@@ -69,9 +56,6 @@ y = df.iloc[:,n-1].to_numpy()
 
 # Some algorithms provide better accuracies with the standard scaling of the input features (i.e. normalization). Let's normalize the data. 
 
-# In[5]:
-
-
 scaler = StandardScaler()
 scaler.fit(X)
 X= scaler.transform(X)
@@ -79,25 +63,16 @@ X= scaler.transform(X)
 
 # We have to split our dataset as train and test data. For this we can use train_test_split by sklearn.model_selection. Test size of 0.20 means that 20% of the data will be used as test data and 80% of the data will be used for training.
 
-# In[6]:
-
-
 X_train, X_test, y_train, y_test= train_test_split(X,y,test_size = 0.20)
 
 
 # We might not always want to tune the parameters of models, or only tune for some models. For this I have defined a basic input. When it is set to "True", the program will perform the tuning for all the models.
-
-# In[7]:
-
 
 Perform_tuning = True
 Lassotuning, Ridgetuning, randomforestparametertuning, XGboostparametertuning, SVMparametertuning, MLPparametertuning = repeat(Perform_tuning,6)
 
 
 # Let's define the grid search function to be used with our models. The values of grid might need to be changed regarding the problem (i.e., some problems might require higher values of n_estimators, while some might require lower ranges).
-
-# In[8]:
-
 
 def grid_search(model,grid):
     # Instantiate the grid search model
@@ -113,9 +88,6 @@ def grid_search(model,grid):
 
 # Performing Lasso parameter tuning.
 
-# In[9]:
-
-
 if Lassotuning:
     # Create the parameter grid based on the results of random search 
     grid = {
@@ -127,9 +99,6 @@ if Lassotuning:
 
 # Performing Ridge parameter tuning.
 
-# In[10]:
-
-
 if Ridgetuning:
     # Create the parameter grid based on the results of random search 
     grid = {
@@ -140,8 +109,6 @@ if Ridgetuning:
 
 
 # Performing Random Forest parameter tuning.
-
-# In[11]:
 
 
 if randomforestparametertuning:
@@ -159,9 +126,6 @@ if randomforestparametertuning:
 
 # Performing XGBoost parameter tuning.
 
-# In[12]:
-
-
 if XGboostparametertuning:
     # Create the parameter grid based on the results of random search 
     grid = {'colsample_bytree': [0.9,0.7],
@@ -177,8 +141,6 @@ if XGboostparametertuning:
 
 # Performing SVM parameter tuning.
 
-# In[13]:
-
 
 #SVM Parameter Tuning----------------------------------------------------------
 if SVMparametertuning:
@@ -188,9 +150,6 @@ if SVMparametertuning:
 
 
 # Performing MLP parameter tuning.
-
-# In[14]:
-
 
 if MLPparametertuning:
     grid = {
@@ -202,9 +161,6 @@ if MLPparametertuning:
 
 
 # Now we obtained the best parameters for all the models using the training data. Let's define the error metrics that will be used in analyzing the accuracy of each model. 
-
-# In[15]:
-
 
 error_metrics = (
     explained_variance_score,
@@ -222,9 +178,6 @@ error_metrics = (
 
 # Let's define fit_model function to predict the results, and analyze the error metrics for each model.
 
-# In[16]:
-
-
 def fit_model(model,X_train, X_test, y_train, y_test,error_metrics):
     fitted_model = model.fit(X_train,y_train)
     y_predicted = fitted_model.predict(X_test)
@@ -236,9 +189,6 @@ def fit_model(model,X_train, X_test, y_train, y_test,error_metrics):
 
 
 # Provide a summary of each model and their GridSearch best parameter results. If tuning is not performed, the script will use the default values as best parameters. 
-
-# In[17]:
-
 
 try:
     trainingmodels = (
@@ -267,18 +217,12 @@ calculations = []
 
 # Below loop performes training, testing and error metrics calculations for each model. 
 
-# In[18]:
-
-
 for trainmodel in trainingmodels:
     errors = fit_model(trainmodel,X_train, X_test, y_train, y_test,error_metrics)
     calculations.append(errors)
 
 
 # Let's organize these results, and summarize them all in a dataframe. 
-
-# In[19]:
-
 
 errors = (
     'Explained variance score',
@@ -319,9 +263,6 @@ df_error
 
 # Moreover, we can analyze the feature importance results using the Random Forest regressor. 
 
-# In[20]:
-
-
 #Principal Component Analysis
 features = df.columns[:-1]
 try:
@@ -337,10 +278,3 @@ plt.yticks(range(len(indices)), features[indices])
 plt.xlabel('Relative Importance')
 plt.savefig('Feature Importance.png', 
               bbox_inches='tight', dpi = 500)
-
-
-# In[ ]:
-
-
-
-
