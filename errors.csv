@@ -1,8 +1,0 @@
-Model,Explained variance score,Max error,Mean  absolute error,Mean squared error,Mean squared log error,Median absolute error,r2 score,Mean poisson deviance,Mean gamma deviance,Mean absolute percentage error
-Lasso,0.997,168.986,72.875,"8,879.816",0.000,43.958,0.994,1.616,0.000,0.013
-MLPRegressor,0.997,170.100,72.275,"8,951.656",0.000,43.985,0.994,1.632,0.000,0.013
-LinearRegression,0.997,170.100,72.275,"8,951.671",0.000,43.986,0.994,1.632,0.000,0.013
-Ridge,0.996,195.713,82.100,"12,427.175",0.000,45.742,0.992,2.292,0.000,0.015
-XGBRegressor,0.707,"1,681.248",442.675,"517,704.074",0.017,243.147,0.664,89.550,0.016,0.086
-RandomForestRegressor,0.673,"1,400.406",605.137,"533,735.739",0.017,546.050,0.654,92.326,0.016,0.109
-SVR,0.208,"2,242.793","1,047.758","1,568,043.852",0.041,"1,064.817",-0.018,240.183,0.037,0.180

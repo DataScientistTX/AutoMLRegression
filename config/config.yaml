@@ -1,0 +1,69 @@
+# Data settings
+data:
+  file_name: 'data.csv'
+  target_column: 'target'
+  test_size: 0.2
+  random_state: 42
+
+# Feature selection
+feature_selection:
+  enabled: true
+  k: 10  # Number of top features to select
+  
+# Model hyperparameters
+model_params:
+  LinearRegression:
+    fit_intercept: [True, False]
+
+  Ridge:
+    alpha: [0.1, 1.0, 10.0]
+    fit_intercept: [True, False]
+
+  Lasso:
+    alpha: [0.1, 1.0, 10.0]
+    fit_intercept: [True, False]
+
+  RandomForestRegressor:
+    n_estimators: [100, 200, 300]
+    max_depth: [None, 10, 20, 30]
+    min_samples_split: [2, 5, 10]
+    min_samples_leaf: [1, 2, 4]
+
+  XGBRegressor:
+    n_estimators: [100, 200, 300]
+    learning_rate: [0.01, 0.1, 0.3]
+    max_depth: [3, 5, 7]
+    min_child_weight: [1, 3, 5]
+
+  SVR:
+    C: [0.1, 1, 10]
+    kernel: ['linear', 'rbf', 'poly']
+    gamma: ['scale', 'auto']
+
+MLPRegressor:
+     hidden_layer_sizes: [[100], [100, 50], [100, 100, 50]]
+     activation: ['relu', 'tanh']
+     alpha: [0.0001, 0.001, 0.01, 0.1]
+     learning_rate: ['adaptive']
+     max_iter: [1000]
+
+# Evaluation settings
+evaluation:
+  metrics:
+    - 'explained_variance'
+    - 'max_error'
+    - 'mean_absolute_error'
+    - 'mean_squared_error'
+    - 'r2_score'
+    - 'mean_absolute_percentage_error'
+
+# Visualization settings
+visualization:
+  feature_importance_plot: 'feature_importance.png'
+  prediction_error_plot: 'prediction_error_{model_name}.png'
+  residuals_plot: 'residuals_{model_name}.png'
+
+# Output settings
+output:
+  results_file: 'model_performance.csv'
+  models_dir: 'trained_models'
