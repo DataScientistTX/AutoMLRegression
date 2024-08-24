@@ -1,120 +1,102 @@
-# Auto Machine Learning Regression
+# AutoMLRegression
 
-This project provides an Automated Supervised Machine Learning Regression program that automatically tunes hyperparameters and outputs final results as tables and visualizations.
-
-## Table of Contents
-- [Auto Machine Learning Regression](#auto-machine-learning-regression)
-  - [Table of Contents](#table-of-contents)
-  - [Features](#features)
-  - [Project Structure](#project-structure)
-  - [Installation](#installation)
-  - [Usage](#usage)
-  - [Configuration](#configuration)
-  - [Models](#models)
-  - [Output](#output)
-  - [Testing](#testing)
-  - [TODO](#todo)
-  - [Contributing](#contributing)
-  - [License](#license)
+AutoMLRegression is an automated machine learning tool for regression problems. It automates the process of data preprocessing, feature selection, model training, hyperparameter tuning, and model evaluation.
 
 ## Features
-- Automated hyperparameter tuning for multiple regression models
-- Comprehensive error metric evaluation
-- Feature importance analysis
-- Easy-to-read output in CSV format and visualizations
 
-## Project Structure
-```
-AutoMLRegression/
-│
-├── data/
-│   ├── raw/
-│   └── processed/
-├── src/
-│   ├── data_preprocessing.py
-│   ├── model_training.py
-│   ├── evaluation.py
-│   └── visualization.py
-├── tests/
-├── config/
-├── results/
-│   ├── models/
-│   ├── plots/
-│   └── metrics/
-├── docs/
-├── README.md
-├── requirements.txt
-├── setup.py
-└── main.py
-```
+- Automated data preprocessing
+- Optional feature selection
+- Training and evaluation of multiple regression models:
+  - Linear Regression
+  - Ridge Regression
+  - Lasso Regression
+  - Random Forest
+  - Support Vector Regression (SVR)
+  - Multi-layer Perceptron (MLP)
+- Ensemble model creation
+- Hyperparameter tuning using GridSearchCV
+- Cross-validation for robust model evaluation
+- Visualization of results including feature importance and residual plots
 
 ## Installation
 
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/sercangul/AutoMLRegression.git
+   ```
+   git clone https://github.com/yourusername/AutoMLRegression.git
    cd AutoMLRegression
    ```
 
-2. Install required Python packages:
-   ```bash
+2. Create a virtual environment (optional but recommended):
+   ```
+   python3 -m venv .venv
+   source .venv/bin/activate  # On Windows, use `.venv\Scripts\activate`
+   ```
+
+3. Install the required packages:
+   ```
    pip install -r requirements.txt
    ```
 
 ## Usage
 
-1. Place your raw data file (CSV format) in the `data/raw/` directory.
+1. Prepare your data:
+   - Ensure your data is in CSV format.
+   - Place your data file in the `data/raw/` directory.
 
-2. Update the configuration in `config/config.yaml` if needed.
+2. Configure the project:
+   - Open `config/config.yaml`.
+   - Adjust the parameters as needed (data filename, feature selection settings, model parameters, etc.).
 
 3. Run the main script:
-   ```bash
+   ```
    python main.py
    ```
 
-## Configuration
+4. View the results:
+   - Model performance metrics will be saved in `results/metrics/model_performance.csv`.
+   - Visualization plots will be saved in `results/plots/`.
 
-You can adjust the hyperparameter grids and other settings in the `config/config.yaml` file. This allows you to customize the model training process without changing the code.
+## Project Structure
 
-## Models
-
-The following regression models are implemented:
-- Linear Regression
-- Ridge Regression
-- Lasso Regression
-- Random Forest Regressor
-- XGBoost Regressor
-- Support Vector Regressor (SVR)
-- Multi-layer Perceptron (MLP) Regressor
-
-## Output
-
-- `results/metrics/model_performance.csv`: A CSV file containing evaluation metrics for all models
-- `results/plots/feature_importance.png`: A plot showing the importance of each feature
-
-## Testing
-
-To run the tests:
-```bash
-python -m unittest discover tests
+```
+AutoMLRegression/
+│
+├── data/
+│   └── raw/             # Place your input CSV file here
+│
+├── src/
+│   ├── data_preprocessing.py
+│   ├── feature_selection.py
+│   ├── model_training.py
+│   ├── evaluation.py
+│   └── visualization.py
+│
+├── config/
+│   └── config.yaml      # Configuration file
+│
+├── results/
+│   ├── metrics/         # Performance metrics will be saved here
+│   └── plots/           # Visualization plots will be saved here
+│
+├── main.py              # Main execution script
+├── requirements.txt     # Project dependencies
+└── README.md            # This file
 ```
 
-## TODO
+## Configuration
 
-- Implement Seaborn pairwise plots
-- Integrate with pandas profiling
-- Visualize best 3 fits (predicted vs test)
-- Add K-fold cross-validation results for each model
-- Visualize error analysis (comparison boxplots)
-- Implement data imputation for missing data points (using KNN)
-- Deploy as a web application using Streamlit + Heroku
+The `config/config.yaml` file allows you to customize various aspects of the AutoML process:
+
+- Data settings (filename, test size, random state)
+- Feature selection options
+- Model hyperparameters for grid search
+- Evaluation metrics
+- Output file names
 
 ## Contributing
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
+Contributions to AutoMLRegression are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the [Apache 2.0 License](https://choosealicense.com/licenses/apache-2.0/).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

@@ -16,9 +16,15 @@ def main():
     X, y = data_preprocessing.preprocess_data(df)
 
     # Feature selection
-    print("Performing feature selection...")
-    X_selected, selected_features = feature_selection.select_features(X, y, k=config['feature_selection']['k'])
-    feature_names = df.columns[:-1][selected_features]  # Update feature names
+    if config.get('feature_selection', {}).get('enabled', False):
+        print("Performing feature selection...")
+        k = config['feature_selection'].get('k', 10)  # Default to 10 if 'k' is not specified
+        X_selected, selected_features = feature_selection.select_features(X, y, k=k)
+        feature_names = df.columns[:-1][selected_features]  # Update feature names
+    else:
+        print("Skipping feature selection...")
+        X_selected = X
+        feature_names = df.columns[:-1]
 
     # Split data
     X_train, X_test, y_train, y_test = data_preprocessing.split_data(

@@ -5,6 +5,11 @@ data:
   test_size: 0.2
   random_state: 42
 
+# Feature selection
+feature_selection:
+  enabled: true
+  k: 10  # Number of top features to select
+  
 # Model hyperparameters
 model_params:
   LinearRegression:
